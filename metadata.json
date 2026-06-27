@@ -1,0 +1,6 @@
+{
+  "name": "Kach QR Code",
+  "description": "Premium digital business profiles delivered through elegant luxury-themed QR codes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS category TEXT; ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS theme TEXT NOT NULL DEFAULT 'obsidian';
