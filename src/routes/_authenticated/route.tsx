@@ -7,7 +7,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, LayoutDashboard, Plus, Palette, QrCode, Menu, X } from "lucide-react";
+import { LogOut, LayoutDashboard, Plus, Palette, QrCode, Menu, X, Settings } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { LUXURY_THEMES, getThemeById } from "@/lib/themes";
@@ -36,11 +36,22 @@ function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [adminTheme, setAdminTheme] = useState("obsidian");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userMetadata, setUserMetadata] = useState<{ fullName?: string; avatarUrl?: string }>({});
 
   useEffect(() => {
     // Close mobile menu on route changes
     setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  const fetchUser = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (data?.user) {
+      setUserMetadata({
+        fullName: data.user.user_metadata?.full_name,
+        avatarUrl: data.user.user_metadata?.avatar_url,
+      });
+    }
+  };
 
   useEffect(() => {
     // Load local first to prevent flash
@@ -48,6 +59,8 @@ function AdminLayout() {
     if (localTheme) {
       setAdminTheme(localTheme);
     }
+
+    fetchUser();
 
     // Sync with Supabase Auth metadata
     supabase.auth.getUser().then(({ data }) => {
@@ -57,11 +70,25 @@ function AdminLayout() {
         localStorage.setItem("admin-theme", dbTheme);
       }
     });
+
+    const handleThemeChange = () => {
+      const updatedTheme = localStorage.getItem("admin-theme") || "obsidian";
+      setAdminTheme(updatedTheme);
+    };
+
+    window.addEventListener("admin-theme-changed", handleThemeChange);
+    window.addEventListener("admin-profile-updated", fetchUser);
+
+    return () => {
+      window.removeEventListener("admin-theme-changed", handleThemeChange);
+      window.removeEventListener("admin-profile-updated", fetchUser);
+    };
   }, []);
 
   async function changeAdminTheme(themeId: string) {
     setAdminTheme(themeId);
     localStorage.setItem("admin-theme", themeId);
+    window.dispatchEvent(new Event("admin-theme-changed"));
     await supabase.auth.updateUser({ data: { theme: themeId } });
     toast.success(`Theme switched to ${getThemeById(themeId).name}`);
   }
@@ -128,6 +155,18 @@ function AdminLayout() {
           >
             <Plus className="w-4 h-4 opacity-70" />
             <span className="text-xs font-medium uppercase tracking-[0.1em]">Add Client</span>
+          </Link>
+
+          <Link
+            to="/settings"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-300 ${
+              pathname === "/settings"
+                ? "bg-white/5 text-white border-white/10 shadow-sm"
+                : "border-transparent text-slate-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Settings className="w-4 h-4 opacity-70" />
+            <span className="text-xs font-medium uppercase tracking-[0.1em]">Settings</span>
           </Link>
         </nav>
 
@@ -234,6 +273,18 @@ function AdminLayout() {
               <Plus className="w-4 h-4 opacity-70" />
               <span className="text-xs font-semibold uppercase tracking-[0.1em]">Add Client</span>
             </Link>
+
+            <Link
+              to="/settings"
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all duration-300 ${
+                pathname === "/settings"
+                  ? "bg-white/5 text-white border-white/10 shadow-sm"
+                  : "border-transparent text-slate-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Settings className="w-4 h-4 opacity-70" />
+              <span className="text-xs font-semibold uppercase tracking-[0.1em]">Settings</span>
+            </Link>
           </nav>
 
           {/* Drawer Footer / Theme Selection & Logout */}
@@ -313,7 +364,11 @@ function AdminLayout() {
               <span
                 className={`text-[10px] uppercase tracking-widest font-bold ${theme.accentText}`}
               >
-                {pathname === "/dashboard" ? "Analytical Dashboard" : "Add Client Profile"}
+                {pathname === "/dashboard"
+                  ? "Analytical Dashboard"
+                  : pathname === "/settings"
+                    ? "System Settings"
+                    : "Add Client Profile"}
               </span>
             </div>
           </div>
@@ -329,17 +384,27 @@ function AdminLayout() {
 
             <div className="flex items-center gap-2">
               <div className="hidden sm:block text-right">
-                <p className="text-xs font-semibold text-white leading-tight">Admin User</p>
+                <p className="text-xs font-semibold text-white leading-tight">
+                  {userMetadata.fullName || "Admin User"}
+                </p>
                 <p className="text-[9px] text-slate-500 uppercase tracking-wider font-bold">
                   Master Account
                 </p>
               </div>
 
               {/* Admin Avatar */}
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-amber-500/30 p-0.5 shrink-0">
-                <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center font-bold text-amber-500 text-xs shadow-inner">
-                  AD
-                </div>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-amber-500/30 p-0.5 shrink-0 overflow-hidden bg-slate-800">
+                {userMetadata.avatarUrl ? (
+                  <img
+                    src={userMetadata.avatarUrl}
+                    alt="Admin"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-amber-500 text-xs shadow-inner">
+                    {(userMetadata.fullName || "AD").substring(0, 2).toUpperCase()}
+                  </div>
+                )}
               </div>
             </div>
           </div>

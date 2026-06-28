@@ -35,12 +35,31 @@ function EditClient() {
 
   async function save(draft: ClientDraft) {
     if (!client) return;
-    const { error } = await supabase.from("clients").update(draft).eq("id", client.id);
+
+    // Strip read-only or primary/system columns before saving
+    const { id, created_at, updated_at, owner_id, slug, ...updateData } = draft as Record<
+      string,
+      unknown
+    >;
+
+    const { data, error } = await supabase
+      .from("clients")
+      .update(updateData)
+      .eq("id", client.id)
+      .select()
+      .maybeSingle();
+
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to save changes");
       return;
     }
-    toast.success("Saved");
+
+    if (data) {
+      setClient(data);
+      const newQr = await generateQrDataUrl(buildClientUrl(data.slug));
+      setQr(newQr);
+    }
+    toast.success("Changes saved successfully");
   }
 
   if (loading || !client)

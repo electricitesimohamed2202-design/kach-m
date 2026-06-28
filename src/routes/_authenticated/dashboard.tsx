@@ -81,6 +81,7 @@ function Dashboard() {
   const [qrOpen, setQrOpen] = useState<Client | null>(null);
   const [qrData, setQrData] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<{ id: string; name: string } | null>(null);
 
   // Filters, sorting, and pagination
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -216,12 +217,6 @@ function Dashboard() {
 
   async function remove(id: string, name: string) {
     if (deletingId) return;
-    if (
-      !confirm(
-        `Are you absolutely sure you want to delete "${name}"?\n\nThis will permanently delete all client details, QR codes, visitor statistics, and all uploaded images from storage.\n\nThis action cannot be undone.`,
-      )
-    )
-      return;
 
     setDeletingId(id);
     try {
@@ -292,6 +287,7 @@ function Dashboard() {
       }
 
       toast.success(`Client "${name}" was successfully deleted.`);
+      setClientToDelete(null);
       await load();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Deletion failed";
@@ -709,16 +705,12 @@ function Dashboard() {
                           <Edit3 className="size-4" />
                         </IconBtn>
                         <IconBtn
-                          onClick={() => remove(c.id, c.business_name)}
-                          title={deletingId === c.id ? "Deleting..." : "Delete client profile"}
+                          onClick={() => setClientToDelete({ id: c.id, name: c.business_name })}
+                          title="Delete client profile"
                           danger
                           disabled={deletingId !== null}
                         >
-                          {deletingId === c.id ? (
-                            <span className="animate-spin inline-block size-4 border-2 border-red-400 border-t-transparent rounded-full" />
-                          ) : (
-                            <Trash2 className="size-4" />
-                          )}
+                          <Trash2 className="size-4" />
                         </IconBtn>
                       </div>
                     </div>
@@ -856,6 +848,65 @@ function Dashboard() {
               category={qrOpen.category}
               onClose={() => setQrOpen(null)}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Premium Deletion Confirmation Modal */}
+      {clientToDelete && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md grid place-items-center p-4 overflow-y-auto"
+          onClick={() => setClientToDelete(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-[#0F0F12]/95 border border-red-500/20 rounded-[2rem] p-6 text-center space-y-6 shadow-2xl relative overflow-hidden"
+          >
+            {/* Subtle premium glow effect in the modal */}
+            <div className="absolute -top-12 -left-12 size-36 bg-red-500/10 blur-3xl rounded-full" />
+            <div className="absolute -bottom-12 -right-12 size-36 bg-red-500/10 blur-3xl rounded-full" />
+
+            <div className="relative z-10 space-y-4">
+              <div className="size-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
+                <Trash2 className="size-7 text-red-400" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-serif text-white">Delete Client Profile?</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Are you absolutely sure you want to permanently delete{" "}
+                  <strong className="text-white font-semibold">"{clientToDelete.name}"</strong>?
+                </p>
+                <p className="text-[10.5px] text-red-400/80 bg-red-500/5 border border-red-500/10 rounded-xl p-3 leading-normal mt-3">
+                  This will permanently delete all client details, QR codes, visitor statistics, and
+                  all uploaded images from storage. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 relative z-10">
+              <button
+                type="button"
+                onClick={() => setClientToDelete(null)}
+                className="flex-1 px-5 py-3 border border-white/10 hover:border-white/20 text-white rounded-xl text-xs uppercase tracking-wider font-semibold bg-white/5 hover:bg-white/10 transition-all cursor-pointer"
+              >
+                No, Keep Profile
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(clientToDelete.id, clientToDelete.name)}
+                disabled={deletingId !== null}
+                className="flex-1 px-5 py-3 bg-red-500 hover:bg-red-600 disabled:opacity-40 text-white rounded-xl text-xs uppercase tracking-wider font-bold transition-all shadow-lg shadow-red-500/15 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {deletingId === clientToDelete.id ? (
+                  <>
+                    <span className="animate-spin inline-block size-3.5 border-2 border-white border-t-transparent rounded-full" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <span>Yes, Delete Profile</span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

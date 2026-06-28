@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { TablesInsert } from "@/integrations/supabase/types";
 import { FileUpload, GalleryUpload } from "@/components/file-upload";
 import { LUXURY_THEMES } from "@/lib/themes";
@@ -33,6 +33,12 @@ const FIELDS: Array<{
 export function ClientForm({ initial, onSubmit, submitLabel }: Props) {
   const [d, setD] = useState<Partial<ClientDraft>>(initial ?? {});
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (initial) {
+      setD(initial);
+    }
+  }, [initial]);
 
   function update<K extends keyof ClientDraft>(k: K, v: ClientDraft[K] | null) {
     setD((prev) => ({ ...prev, [k]: v }));

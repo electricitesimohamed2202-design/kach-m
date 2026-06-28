@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   head: () => ({ meta: [{ title: "Admin — Kach QR Code" }] }),
   component: AuthPage,
 });
@@ -16,8 +17,32 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data.user) {
+        try {
+          const { data: roleRow, error } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", data.user.id)
+            .eq("role", "admin")
+            .maybeSingle();
+
+          if (error) {
+            console.error("Error checking user role:", error);
+            return;
+          }
+
+          if (roleRow) {
+            navigate({ to: "/dashboard" });
+          } else {
+            // Sign out the non-admin user to clear their session and prevent redirect loop
+            await supabase.auth.signOut();
+            toast.error("Access denied. You do not have administrator privileges.");
+          }
+        } catch (err) {
+          console.error("Error in auth check:", err);
+        }
+      }
     });
   }, [navigate]);
 
@@ -26,20 +51,63 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        if (!data.user) throw new Error("No user found");
+
+        const { data: roleRow, error: roleError } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (roleError) throw roleError;
+
+        if (!roleRow) {
+          await supabase.auth.signOut();
+          throw new Error("Access denied. You do not have administrator privileges.");
+        }
+
         toast.success("Welcome back.");
         navigate({ to: "/dashboard" });
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
+
+        // Some projects require email confirmation. Handle that case gracefully.
+        if (signUpData.user && signUpData.session === null) {
+          toast.success("Account created! Please check your email to confirm your account.");
+          setMode("signin");
+          return;
+        }
+
         toast.success("Account created. Signing in…");
-        const { error: e2 } = await supabase.auth.signInWithPassword({ email, password });
+        const { data: signInData, error: e2 } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
         if (e2) throw e2;
+        if (!signInData.user) throw new Error("No user found after sign in");
+
+        const { data: roleRow, error: roleError } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", signInData.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (roleError) throw roleError;
+
+        if (!roleRow) {
+          await supabase.auth.signOut();
+          throw new Error("Access denied. You do not have administrator privileges.");
+        }
+
         navigate({ to: "/dashboard" });
       }
     } catch (err: unknown) {
