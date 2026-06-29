@@ -1,4 +1,4 @@
-import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { g as Link } from "../_libs--tanstack-react-router+[...].mjs";
 import { t as require_jsx_dev_runtime } from "../_libs/react.mjs";
 import { J as Sparkles, _ as QrCode, u as Shield } from "../_libs/lucide-react.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/routes-CW3_x7Ln.js

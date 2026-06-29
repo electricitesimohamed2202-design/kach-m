@@ -151,36 +151,32 @@ npm run start
 
 ## ☁️ Deploying to Vercel
 
-This project is pre-configured to be 100% production-ready for instant, zero-configuration deployments on Vercel.
+This project is built using **TanStack Start** with **Nitro**. Nitro automatically produces a compiled deployment payload under the **Vercel Build Output API** structure inside `.vercel/output`.
 
-### Option A: Connected GitHub Deploy (Recommended)
-1. Export or push this project to a **GitHub Repository**.
-2. Connect your GitHub account to [Vercel](https://vercel.com).
-3. Click **Import Project** and select this repository.
-4. Vercel will automatically read `vercel.json` and configure:
-   - **Framework Preset**: Vite (or other detected frameworks; Vercel handles this automatically).
-   - **Build Command**: `vite build`
-   - **Output Directory**: `.vercel/output`
-5. In the **Environment Variables** configuration section, copy over the key-value pairs from your `.env` file:
-   - `SUPABASE_URL`
-   - `SUPABASE_PUBLISHABLE_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY`
-6. Click **Deploy**! Any future git push to your master/main branch will trigger a fast, automated, and serverless edge deployment.
+To deploy successfully to Vercel without receiving blank white pages or missing module errors:
 
-### Option B: Command Line Deploy (Vercel CLI)
-If you prefer the command-line interface, install the CLI, configure, and deploy instantly:
-```bash
-# Install CLI
-npm install -g vercel
+### ⚙️ Crucial Vercel Project Settings
+When importing this project to the **Vercel Dashboard**, you **MUST** configure the following build settings:
 
-# Log in to your Vercel account
-vercel login
+1. **Framework Preset**: Change this from "Vite" to **"Other"**.
+   - *Why this is required*: Setting the preset to "Vite" tells Vercel to override the output directory to `dist` and look only for simple static client files. Changing it to **"Other"** disables these overrides, letting Vercel natively detect and execute the serverless SSR bundle generated under `.vercel/output`.
+2. **Build Command**: Set to `npm run build` (or leave as default if it uses the build script).
+3. **Output Directory**: Leave this **empty** or set to the default (do **NOT** override it to `dist`). Vercel will automatically discover the `.vercel/output` folder at the root.
 
-# Deploy
-vercel
-```
+### 🔑 Environment Variables
+In the **Environment Variables** configuration section, copy over the key-value pairs from your `.env` file:
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+### 🚀 Automated Git Deployment
+1. Push this project to a **GitHub Repository**.
+2. Go to the [Vercel Dashboard](https://vercel.com).
+3. Click **Add New** > **Project** and select your repository.
+4. Set the settings above, add your Environment Variables, and click **Deploy**!
+5. Future commits pushed to your repository will automatically trigger fresh, high-performance SSR serverless builds on Vercel.
 
 ---
 

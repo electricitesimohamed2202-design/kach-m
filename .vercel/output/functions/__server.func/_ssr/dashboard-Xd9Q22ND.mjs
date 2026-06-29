@@ -1,13 +1,13 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { t as supabase } from "./client-DXjAb9eS.mjs";
 import { i as require_react } from "../_libs/react+tanstack__react-query.mjs";
-import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { g as Link } from "../_libs--tanstack-react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { t as require_jsx_dev_runtime } from "../_libs/react.mjs";
 import { B as ChevronRight, F as ExternalLink, G as ArrowUpDown, H as Check, I as Download, J as Sparkles, L as Copy, M as Frame, U as CalendarDays, V as ChevronLeft, W as Award, X as ChartColumn, Y as PenLine, _ as QrCode, c as Trash2, g as RotateCcw, h as ScanLine, l as SlidersHorizontal, m as Search, r as Users, s as TrendingUp, v as Plus, z as CircleDot } from "../_libs/lucide-react.mjs";
 import { i as generateQrDataUrl, t as buildClientUrl } from "./qr-kv4ZqdPQ.mjs";
 import { t as QRCodeCanvas } from "../_libs/qrcode.react.mjs";
-import { a as CartesianGrid, i as Area, n as YAxis, o as ResponsiveContainer, r as XAxis, s as Tooltip, t as AreaChart } from "../_libs/recharts+[...].mjs";
+import { a as CartesianGrid, i as Area, n as YAxis, o as ResponsiveContainer, r as XAxis, s as Tooltip, t as AreaChart } from "../_libs-recharts+[...].mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/dashboard-Xd9Q22ND.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_dev_runtime = require_jsx_dev_runtime();

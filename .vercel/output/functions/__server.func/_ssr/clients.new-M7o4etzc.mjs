@@ -1,5 +1,5 @@
 import { t as supabase } from "./client-DXjAb9eS.mjs";
-import { F as useNavigate, g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { F as useNavigate, g as Link } from "../_libs--tanstack-react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { t as require_jsx_dev_runtime } from "../_libs/react.mjs";
 import { q as ArrowLeft } from "../_libs/lucide-react.mjs";

@@ -3,7 +3,7 @@ import { t as require_node } from "./fflate.mjs";
 import { n as lib_esm_exports, t as init_lib_esm } from "./fast-png+iobuffer+pako.mjs";
 import { n as init_html2canvas_esm, t as html2canvas_esm_exports } from "./html2canvas.mjs";
 import { t as require_purify_cjs } from "./dompurify.mjs";
-import { t as require_lib } from "./canvg+[...].mjs";
+import { t as require_lib } from "../_libs-canvg+[...].mjs";
 //#region node_modules/jspdf/dist/jspdf.node.min.js
 var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	/** @license

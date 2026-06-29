@@ -9,6 +9,17 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 const isVercel = !!process.env.VERCEL;
 
 export default defineConfig({
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          sanitizeFileName(name) {
+            return name.replace(/[^a-zA-Z0-9-_\.]/g, "-");
+          },
+        },
+      },
+    },
+  },
   nitro: {
     preset: isVercel ? "vercel" : "node-server",
     ...(isVercel
@@ -20,6 +31,14 @@ export default defineConfig({
             publicDir: "dist/client",
           },
         }),
+    rollupConfig: {
+      output: {
+        inlineDynamicImports: true,
+        sanitizeFileName(name) {
+          return name.replace(/[^a-zA-Z0-9-_\.]/g, "-");
+        },
+      },
+    },
   },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).

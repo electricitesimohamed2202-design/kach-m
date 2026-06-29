@@ -1,7 +1,7 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { t as supabase } from "./client-DXjAb9eS.mjs";
 import { i as require_react } from "../_libs/react+tanstack__react-query.mjs";
-import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { g as Link } from "../_libs--tanstack-react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { t as require_jsx_dev_runtime } from "../_libs/react.mjs";
 import { n as getThemeById, t as LUXURY_THEMES } from "./themes-BuFZdXWu.mjs";
